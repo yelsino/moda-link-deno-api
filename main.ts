@@ -14,29 +14,31 @@ app.get("/", async (c) => {
     return `<li>${entry.name}</li>`;
   }).join("");
 
-  const baseURL = new URL(Deno.env.get("URL_BASE_DEPLOY") ?? "http://localhost:8080");
-  // const url = await Deno.env.get("DENO_DEPLOYMENT_URL");
-  return new Response(`<div>
-  <h1>Lista de archivos</h1>
-  <h2>${baseURL}</h2>
-  <ul>${list}</ul>
-  </div>`, {
-    headers: {
-      "content-type": "text/html",
-    },
-  });
+  const baseURL = new URL(
+    Deno.env.get("URL_BASE_DEPLOY") ?? "http://localhost:8000",
+  );
+
+
+  return c.html(`
+    <div>
+      <h1>Lista de archivos</h1>
+      <h2>${baseURL}</h2>
+      <ul>${list}</ul>
+      <div>
+        <ul>
+          <a href="${baseURL}api/v1/products">ver data: ${baseURL}/api/v1/products</a>
+        </ul>
+      </div>
+    </div>
+  `);
 });
-app.route('/api', products);
+app.route("/api", products);
 
+app.notFound((c) => c.text("Custom 404 Message", 404));
 
-
-app.notFound((c) => c.text('Custom 404 Message', 404));
-
-app.onError((err, c)=>{
+app.onError((err, c) => {
   console.log(`${err}`);
-  return c.text("Custom Error Message", 500)
-})
-
+  return c.text("Custom Error Message", 500);
+});
 
 Deno.serve(app.fetch);
-
