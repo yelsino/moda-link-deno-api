@@ -70,7 +70,9 @@ products.get("/products", async (c) => {
 
     return c.json(flattenedJson); // Devuelve el contenido de los archivos CSV como JSON
   } catch (error) {
-    return c.text("Error al convertir los archivos CSV a JSON. ", error);
+    console.log(error);
+    
+    return c.text(`Error al convertir los archivos CSV a JSON. ${error}`);
   }
 
 });
