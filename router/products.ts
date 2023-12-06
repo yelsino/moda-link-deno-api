@@ -29,8 +29,8 @@ const products = new Hono().basePath("/v1")
 products.get("/products", async (c) => {
   try {
 
-    const baseURL = new URL(Deno.env.get("URL_BASE_DEPLOY") ?? "http://localhost:8080");
-    const dataDir = `${baseURL}/static/data`;
+    
+    const dataDir = './static/data'; // Ruta al directorio que contiene los archivos CSV
 
     const csvFiles: string[] = [];
 
