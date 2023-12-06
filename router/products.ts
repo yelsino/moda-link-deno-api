@@ -69,8 +69,8 @@ products.get("/products", async (c) => {
     const flattenedJson = jsonData.flat();
 
     return c.json(flattenedJson); // Devuelve el contenido de los archivos CSV como JSON
-  } catch  {
-    return c.text("Error al convertir los archivos CSV a JSON.");
+  } catch (error) {
+    return c.text("Error al convertir los archivos CSV a JSON. ", error);
   }
 
 });
