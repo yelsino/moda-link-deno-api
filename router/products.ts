@@ -16,20 +16,8 @@ products.get("/products", async (c) => {
     }
 
     const csvData = csvFiles.map(async (csvFile) => {
-      const file = await Deno.open(csvFile);  // Open the file handle
+      const content = await Deno.readFile(csvFile);
       const decoder = new TextDecoder('utf-8');
-      
-      // Use Deno.read to read chunks from the file handle
-      const buffer = new Uint8Array(1024);  // You can adjust the buffer size as needed
-      let content: Uint8Array = new Uint8Array(0);
-      let bytesRead;
-      
-      while ((bytesRead = await Deno.read(file.rid, buffer)) !== null) {
-        content = new Uint8Array([...content, ...buffer.slice(0, bytesRead)]);
-      }
-      
-      Deno.close(file.rid);  // Close the file handle
-
       const rows = decoder.decode(content).split('\n');
       const headers = rows[0].split(',');
 
@@ -60,6 +48,7 @@ products.get("/products", async (c) => {
     return c.text(`Error al convertir los archivos CSV a JSON. ${error}`);
   }
 });
+
 
 
 export default products;
