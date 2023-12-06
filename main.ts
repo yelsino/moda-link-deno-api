@@ -14,7 +14,7 @@ app.get("/", async (c) => {
     return `<li>${entry.name}</li>`;
   }).join("");
 
-  const baseURL = new URL(Deno.env.get("DENO_DEPLOYMENT_URL") ?? "http://localhost:8080");
+  const baseURL = new URL(Deno.env.get("URL_BASE_DEPLOY") ?? "http://localhost:8080");
   // const url = await Deno.env.get("DENO_DEPLOYMENT_URL");
   return new Response(`<div>
   <h1>Lista de archivos</h1>
