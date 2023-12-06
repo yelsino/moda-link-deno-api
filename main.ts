@@ -4,7 +4,28 @@ import products from "./router/products.ts";
 
 const app = new Hono();
 
-app.get("/", (c) => c.text("Welcome to dinosaur API!!"));
+app.get("/", async (c) => {
+  const entries = [];
+  for await (const entry of Deno.readDir("./static/data")) {
+    entries.push(entry);
+  }
+
+  const list = entries.map((entry) => {
+    return `<li>${entry.name}</li>`;
+  }).join("");
+
+  const baseURL = new URL(Deno.env.get("DENO_DEPLOYMENT_URL") ?? "http://localhost:8080");
+  // const url = await Deno.env.get("DENO_DEPLOYMENT_URL");
+  return new Response(`<div>
+  <h1>Lista de archivos</h1>
+  <h2>${baseURL}</h2>
+  <ul>${list}</ul>
+  </div>`, {
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+});
 app.route('/api', products);
 
 
