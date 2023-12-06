@@ -1,12 +1,10 @@
 import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
 
-const products = new Hono().basePath("/v1")
+const products = new Hono().basePath("/v1");
 
 products.get("/products", async (c) => {
   try {
-
-    
-    const dataDir = './static/data'; // Ruta al directorio que contiene los archivos CSV
+    const dataDir = './static/data';
 
     const csvFiles: string[] = [];
 
@@ -18,12 +16,21 @@ products.get("/products", async (c) => {
     }
 
     const csvData = csvFiles.map(async (csvFile) => {
-      const file = await Deno.open(csvFile);
+      const file = await Deno.open(csvFile);  // Open the file handle
       const decoder = new TextDecoder('utf-8');
-      const content = decoder.decode(await Deno.readAll(file));
-      Deno.close(file.rid);
+      
+      // Use Deno.read to read chunks from the file handle
+      const buffer = new Uint8Array(1024);  // You can adjust the buffer size as needed
+      let content: Uint8Array = new Uint8Array(0);
+      let bytesRead;
+      
+      while ((bytesRead = await Deno.read(file.rid, buffer)) !== null) {
+        content = new Uint8Array([...content, ...buffer.slice(0, bytesRead)]);
+      }
+      
+      Deno.close(file.rid);  // Close the file handle
 
-      const rows = content.split('\n');
+      const rows = decoder.decode(content).split('\n');
       const headers = rows[0].split(',');
 
       const fileData = [];
@@ -46,14 +53,13 @@ products.get("/products", async (c) => {
 
     const flattenedJson = jsonData.flat();
 
-    return c.json(flattenedJson); // Devuelve el contenido de los archivos CSV como JSON
+    return c.json(flattenedJson);
   } catch (error) {
     console.log(error);
     
     return c.text(`Error al convertir los archivos CSV a JSON. ${error}`);
   }
-
 });
 
 
-export default products
+export default products;
