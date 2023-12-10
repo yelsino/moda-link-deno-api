@@ -1,6 +1,7 @@
 import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
 
 import products from "./router/products.ts";
+import scraping from "./router/scraping.ts";
 
 const app = new Hono();
 
@@ -33,6 +34,7 @@ app.get("/", async (c) => {
   `);
 });
 app.route("/api", products);
+app.route("/api", scraping);
 
 app.notFound((c) => c.text("Custom 404 Message", 404));
 
