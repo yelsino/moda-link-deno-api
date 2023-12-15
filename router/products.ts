@@ -4,6 +4,7 @@ import * as dataShares from '../static/data/shares.json' with { type: "json"};
 import * as dataAfiliate from '../static/data/data-afiliate.json' with { type: "json"};
 import * as productsMen from '../static/data/products-shop-men.json' with { type: "json" };
 import * as productsWomen from '../static/data/products-shop-women.json' with { type: "json"};
+import { Product } from "../libs/interfaces.ts";
 
 const products = new Hono().basePath("/v1");
 
@@ -83,10 +84,29 @@ products.get("/products", (c) => {
     }
   })
 
-  console.log("cantidad: ", updateProducts.length);
+  function eliminarDuplicados(arr: Product[], propiedades: (keyof Product)[]) {
+    const unique: { [key: string]: boolean } = {};
+    return arr.filter(item => {
+      const uniqueKey = propiedades.map(prop => String(item[prop])).join('|');
+  
+      if (!unique[uniqueKey]) {
+        unique[uniqueKey] = true;
+        return true;
+      }
+      return false;
+    });
+  }
+  
+  // Llamar a la función para eliminar duplicados basados en la propiedad "imagen"
+  const uniqueProductos = eliminarDuplicados(updateProducts, ['imagen', 'url']);
+  console.log("cantidad: ", uniqueProductos.length);
+  
+  // const uniqueProductos3 = eliminarDuplicados(uniqueProductos2, 'urlAfiliado');
+
+  // console.log("cantidad: ", uniqueProductos3.length);
   
 
-  return c.json(updateProducts)
+  return c.json(uniqueProductos)
 })
 
 
