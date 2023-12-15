@@ -99,12 +99,9 @@ products.get("/products", (c) => {
     });
   }
   
-  // Llamar a la función para eliminar duplicados basados en la propiedad "imagen"
-  const uniqueProductos = getUniques(getUniques(updateProducts, 'imagen'),'url');
-
-
+  const uniqueProductos = getUniques(updateProducts, 'descripcion');
+  // const uniqueProductos = getUniques(getUniques(updateProducts, 'imagen'),'url');
   console.log("cantidad: ", uniqueProductos.length);
-  
 
   return c.json(uniqueProductos)
 })
