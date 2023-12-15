@@ -29,7 +29,7 @@ export const setItemsToCsv = async ({ bucle, page }) => {
   }
 };
 
-export const getProducts = async ({ bucle, page }) => {
+export const getProductsShare = async ({ bucle, page }) => {
   let datos = [];
   for (let index = 0; index < bucle; index++) {
     const direcction = `https://www.newchic.com/es/affiliateCenter/productList.html?sort=1&page=${
@@ -62,7 +62,7 @@ export const getProducts = async ({ bucle, page }) => {
 
         const getLikes = element.querySelector(".mb-lg-15.flex > span.lg-fit");
         if (getLikes) {
-          const textLikes = getLikes.textContent.trim(); 
+          const textLikes = getLikes.textContent.trim();
           console.log(textLikes);
           const likesRegex = /\d+/;
           const extractedLikes = textLikes.match(likesRegex);
@@ -99,3 +99,103 @@ export const getProducts = async ({ bucle, page }) => {
 
   return datos;
 };
+
+
+
+
+
+export const getProductsShop = async ({
+  page,
+  categories = [],
+  genero = "",
+}) => {
+  await page.goto(
+    "https://es.newchic.com/style/casual-stylemen-t-000003807.html?mg_id=2&from=nav"
+  );
+  await new Promise((e) => setTimeout(e, 3000));
+  let productsMen = [];
+  for (const category of categories) {
+
+     for (const sub of category.subCategories) {
+      // console.log("sub url:", sub.url);
+       await page.goto(sub.url);
+
+       const numberPages = await page.$$eval('.pagination > li[data-spm-masonry].page-item', (elements)=>elements.map(e => e.textContent.trim()));
+
+       const formatNumbers = numberPages.map(numero => Number(numero));
+       const getMaxNumber = formatNumbers.length > 0 ? Math.max(...formatNumbers) : 1;
+
+       for (let index = 1; index <= getMaxNumber; index++) {
+         await page.goto(`${sub.url}&page=${index}`);
+
+         await new Promise((r)=>setTimeout(r, 1000));
+         const products = await page.evaluate(() => {
+           const products = Array.from(document.querySelectorAll('.product-item-js'));
+           return products.map((product) => {
+             let descripcion = "";
+             let marca = "";
+             let precio = "";
+             let imagen = "";
+             let url = "";
+             let likes = 0;
+
+             const getDescription = product.querySelector('.product-item-name-js');
+             if(getDescription)
+               descripcion = getDescription.textContent.trim();
+
+             const getMarca = product.querySelector('a.product-item-brand');
+             if(getMarca)
+               marca = getMarca.textContent.trim();
+
+             const getPrecio = product.querySelector('span.product-price-js')
+             if(getPrecio)
+               precio = getPrecio.textContent.trim();
+
+             const getImagen = product.querySelector('img.product-item-pic-js')
+             if(getImagen)
+               imagen = getImagen.getAttribute('src');
+
+             const getUrl = product.querySelector('.product-item__pic > a.product-item-link-js');
+             if(getUrl)
+               url = getUrl.getAttribute('href');
+
+            const getLikes = product.querySelector('.product-item__wish-num-js');
+              if(getLikes){
+                likes = Number(getLikes.textContent.trim());
+              }
+
+             return { descripcion, marca, precio, imagen, url, likes, urlAfiliado: "" }
+           });
+         }
+         );
+
+         const addAtribute =  products.map((e)=>({...e,subCategoria:sub.title}))
+         productsMen = productsMen.concat(addAtribute)
+
+       }
+
+     }
+
+     productsMen = productsMen.map((e)=>({
+      ...e,
+      categoria:category.category,
+      genero: genero
+    }))
+  }
+  return productsMen;
+};
+
+
+export const createLinkAfiliate = async (page,text) => {
+
+  // seleccionar input
+
+
+  // copiar texto en portapapeles
+  await page.evaluate((text)=>{
+    navigator.clipboard.writeText(text);
+  })
+
+  // pegar texto en input
+  
+}

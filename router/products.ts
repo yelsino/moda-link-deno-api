@@ -1,13 +1,17 @@
 import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
 import * as dataProducts from '../static/data/products.json' with { type: "json" };
 import * as dataShares from '../static/data/shares.json' with { type: "json"};
+import * as dataAfiliate from '../static/data/data-afiliate.json' with { type: "json"};
+import * as productsMen from '../static/data/products-shop-men.json' with { type: "json" };
+import * as productsWomen from '../static/data/products-shop-women.json' with { type: "json"};
 
 const products = new Hono().basePath("/v1");
 
-products.get("/products", async (c) => {
+products.get("/products-antiguo", async (c) => {
   try {
     // const dataDir = './static/data';
-    const dataDir = './download';
+    const dataDir = './download/csv-convert-normal';
+    // const dataDir = './download';
 
     const csvFiles: string[] = [];
 
@@ -63,6 +67,26 @@ products.get("/generate-data",  (c) => {
     return { ...e, likes }
   })
   return c.json(mergeData)
+});
+
+products.get("/products", (c) => {
+  const data_products = productsMen.default.concat(productsWomen.default);
+  const data_afiliate = dataAfiliate.default;
+
+    // Recorre cada elemento en data_afiliate
+  const updateProducts = data_products.map((e)=>{
+    const matchUrl = data_afiliate.find((a)=>a["Site/Product/Categroy Link"] === e.url);
+  
+    return {
+      ...e,
+      urlAfiliado: matchUrl ? matchUrl["Affiliate URL"] : ""
+    }
+  })
+
+  console.log("cantidad: ", updateProducts.length);
+  
+
+  return c.json(updateProducts)
 })
 
 

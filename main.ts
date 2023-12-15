@@ -2,8 +2,11 @@ import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
 
 import products from "./router/products.ts";
 import scraping from "./router/scraping.ts";
+import files from "./router/files.ts";
 
-const app = new Hono();
+const app = new Hono({
+  
+});
 
 app.get("/", async (c) => {
   const entries = [];
@@ -35,11 +38,12 @@ app.get("/", async (c) => {
 });
 app.route("/api", products);
 app.route("/api", scraping);
+app.route("/api", files);
 
 app.notFound((c) => c.text("Custom 404 Message", 404));
 
 app.onError((err, c) => {
-  console.log(`${err}`);
+  console.log(`error es: ${err.message}`);
   return c.text("Custom Error Message", 500);
 });
 
