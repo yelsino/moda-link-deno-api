@@ -84,26 +84,26 @@ products.get("/products", (c) => {
     }
   })
 
-  function eliminarDuplicados(arr: Product[], propiedades: (keyof Product)[]) {
+  function getUniques(arr: Product[], propiedad: keyof Product) {
     const unique: { [key: string]: boolean } = {};
     return arr.filter(item => {
-      const uniqueKey = propiedades.map(prop => String(item[prop])).join('|');
-  
-      if (!unique[uniqueKey]) {
-        unique[uniqueKey] = true;
-        return true;
+      const value = item[propiedad];
+      if (value !== undefined) {
+        if (!unique[value]) {
+          unique[value] = true;
+          return true;
+        }
+        return false;
       }
       return false;
     });
   }
   
   // Llamar a la función para eliminar duplicados basados en la propiedad "imagen"
-  const uniqueProductos = eliminarDuplicados(updateProducts, ['imagen', 'url']);
-  console.log("cantidad: ", uniqueProductos.length);
-  
-  // const uniqueProductos3 = eliminarDuplicados(uniqueProductos2, 'urlAfiliado');
+  const uniqueProductos = getUniques(getUniques(updateProducts, 'imagen'),'url');
 
-  // console.log("cantidad: ", uniqueProductos3.length);
+
+  console.log("cantidad: ", uniqueProductos.length);
   
 
   return c.json(uniqueProductos)
