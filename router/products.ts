@@ -71,6 +71,9 @@ products.get("/generate-data",  (c) => {
 });
 
 products.get("/products", (c) => {
+
+  const {genero,marca,categoria,subCategoria,page,sizePage} = c.req.query();
+
   const data_products = productsMen.default.concat(productsWomen.default);
   const data_afiliate = dataAfiliate.default;
 
@@ -100,8 +103,58 @@ products.get("/products", (c) => {
   }
   
   const uniqueProductos = getUniques(updateProducts, 'descripcion');
+
+  function sortByLikesDescending(a: Product, b: Product): number {
+    const likesA = Number(a.likes);
+    const likesB = Number(b.likes);
   
-  return c.json(uniqueProductos)
+    return likesB - likesA;
+  }
+  
+  let orderData = uniqueProductos.sort(sortByLikesDescending);
+
+  if (genero) {
+    orderData = orderData.filter(product => product.genero === genero);
+  }
+
+  if (marca) {
+    orderData = orderData.filter(product => product.marca === marca);
+  }
+
+  if (categoria) {
+    orderData = orderData.filter(product => product.categoria === categoria);
+  }
+
+  if (subCategoria) {
+    orderData = orderData.filter(product => product.subCategoria === subCategoria);
+  }
+
+    // Función para obtener la página solicitada
+    const getPage = (data:Product[], pageNumber:number, pageSize:number) => {
+      const startIndex = (pageNumber - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      return data.slice(startIndex, endIndex);
+    };
+
+    // Aplicar paginación si se especifica la página y el tamaño de página
+  let paginatedProducts = orderData;
+  if (page && sizePage) {
+    const pageNumber = parseInt(page);
+    const pageSize = parseInt(sizePage);
+    paginatedProducts = getPage(orderData, pageNumber, pageSize);
+  }
+
+   // Actualizar los productos con los enlaces de afiliados
+   const updatedProducts = paginatedProducts.map(product => {
+    const matchUrl = data_afiliate.find(afiliate => afiliate["Site/Product/Categroy Link"] === product.url);
+    return {
+      ...product,
+      urlAfiliado: matchUrl ? matchUrl["Affiliate URL"] : ""
+    };
+  });
+
+  
+  return c.json(updatedProducts);
 })
 
 
