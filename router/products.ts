@@ -88,8 +88,8 @@ products.get("/", async (c) => {
       filter
     } = c.req.query();
 
-    // let products = generateProducts();
-    let products = await getEntityAllData<Product>("product");
+    let products = dataDenokv.default
+    // let products = await getEntityAllData<Product>("product");
     console.log("prod: ", products.length);
 
     if (genero) {

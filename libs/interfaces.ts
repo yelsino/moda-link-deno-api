@@ -4,13 +4,13 @@ export interface Product {
   url: string
   precio: string
   imagen: string
-  filter?: string
-  categoria?: string 
-  subCategoria?: string
-  likes?: number
+  filter: string
+  categoria: string 
+  subCategoria: string
+  likes: number
   genero: string
   urlAfiliado: string
-  id?: string
+  id: string
 
 }
 
