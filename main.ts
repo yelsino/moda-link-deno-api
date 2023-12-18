@@ -1,14 +1,19 @@
+// import { serveStatic } from "https://deno.land/x/hono@v3.4.1/middleware.ts"
 import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
-import { serveStatic } from "https://deno.land/x/hono@v3.4.1/middleware.ts"
 import products from "./router/products.ts";
 import scraping from "./router/scraping.ts";
 import files from "./router/files.ts";
 
-const app = new Hono({
-  
-});
+const app = new Hono();
 
 // app.get("/", serveStatic({ path: './index.html'}));
+
+// active functions 
+// await registrarProductos(false);
+// await getExactCategory(false);
+// await updateProducts();
+
+
 app.get("/", async (c) => {
   const entries = [];
   for await (const entry of Deno.readDir("./static/data")) {
@@ -50,3 +55,4 @@ app.onError((err, c) => {
 });
 
 Deno.serve(app.fetch);
+
