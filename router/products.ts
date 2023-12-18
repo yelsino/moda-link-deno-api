@@ -84,7 +84,8 @@ products.get("/", async (c) => {
       categoria,
       subCategoria,
       page,
-      sizePage
+      sizePage,
+      filter
     } = c.req.query();
 
     // let products = generateProducts();
@@ -101,6 +102,10 @@ products.get("/", async (c) => {
 
     if (categoria) {
       products = products.filter((product) => product.categoria === categoria);
+    }
+
+    if (filter) {
+      products = products.filter((product) => product.filter === filter);
     }
 
     if (subCategoria) {
