@@ -5,6 +5,7 @@ import * as dataProducts from "../static/data/products.json" with {
 import * as dataShares from "../static/data/shares.json" with { type: "json" };
 import { Product } from "../libs/interfaces.ts";
 import { getEntityAllData, saveProducts } from "../libs/deno-kv.ts";
+import { orderData } from "../libs/product.libs.ts"
 import * as dataDenokv from "../static/data/data-deno-kv.json" with {
   type: "json",
 };
@@ -75,7 +76,7 @@ products.get("/generate-data", (c) => {
   return c.json(mergeData);
 });
 
-products.get("/", async (c) => {
+products.get("/", (c) => {
   try {
 
     const {
@@ -88,7 +89,8 @@ products.get("/", async (c) => {
       filter
     } = c.req.query();
 
-    let products = dataDenokv.default
+
+    let products = orderData(dataDenokv.default)
     // let products = await getEntityAllData<Product>("product");
     console.log("prod: ", products.length);
 
