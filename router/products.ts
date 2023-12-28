@@ -92,7 +92,6 @@ products.get("/", (c) => {
 
     let products = orderData(dataDenokv.default)
     // let products = await getEntityAllData<Product>("product");
-    console.log("prod: ", products.length);
 
     if (genero) {
       products = products.filter((product) => product.genero === genero);
@@ -139,9 +138,11 @@ products.get("/", (c) => {
   }
 });
 
+
+
 products.post("/generate", async (c) => {
   try {
-    await saveProducts(dataDenokv.default);
+    await saveProducts(dataDenokv.default, "es");
     return c.text("data kv generated")
 
   } catch (error) {

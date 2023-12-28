@@ -2,10 +2,10 @@ import { Product } from "./interfaces.ts";
 
 export const kv = await Deno.openKv();
 
-export async function saveProducts(products:Product[]) {
+export async function saveProducts(products:Product[],language:string) {
 
   const savePromise = products.map((product)=>{
-    const primaryKey = ["product", product.id ?? ""]
+    const primaryKey = ["product", `${language}-${product.id}` ?? ""]
 
     return kv
             .atomic()
@@ -17,6 +17,7 @@ export async function saveProducts(products:Product[]) {
   await Promise.all(savePromise).then(()=>console.log("products ready!"))
   ;
 }
+
 
 
 

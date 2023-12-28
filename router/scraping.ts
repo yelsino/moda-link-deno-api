@@ -303,3 +303,45 @@ export default scraping;
 function removerCategorias(arr: Menu[], categoriasAEliminar: string[]) {
   return arr.filter((item) => !categoriasAEliminar.includes(item.category));
 }
+
+
+scraping.get("/blog-squire", async (c) => {
+  const browser = await puppeter.launch({
+    headless: false,
+    defaultViewport: null,
+    executablePath: "/usr/bin/chromium-browser",
+    slowMo: 100,
+  });
+
+  try {
+
+    const url = "https://www.esquire.com/es/moda-hombre/a44120295/tendencias-verano-moda-hombre/"
+    const page = await browser.newPage();
+    const useAgent =
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3";
+    await page.setUserAgent(useAgent);
+    const headerOption = { "Accept-Language": "es-PE,es;q=0.9" };
+    await page.setExtraHTTPHeaders(headerOption);
+
+    await page.goto(url);
+
+    // Extraer títulos y URLs de las imágenes
+    const titles = await page.$$eval('.body-h3', elements => elements.map(el => el.textContent.trim()));
+    const images = await page.$$eval('.css-uwraif > img', imgs => imgs.map(img => img.getAttribute('src')));
+
+    const tendencias = titles.map((title, index) => ({
+      title: title || "No title found",
+      imagen: images[index] || "No image found"
+    }));
+
+    console.log(tendencias); // Muestra los datos extraídos en la consola
+
+    await browser.close();
+
+    return c.json(tendencias); // Devuelve los datos como JSON
+  } catch (error) {
+    return c.text("error::", error)
+  }
+
+
+})

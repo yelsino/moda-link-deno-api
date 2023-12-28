@@ -1,5 +1,5 @@
 {
   "tasks": {
-    "start": "deno run --watch --unstable --allow-env -A main.ts"
+    "start": "deno run --unstable --allow-env -A  --watch main.ts"
   }
 }

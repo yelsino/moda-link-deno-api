@@ -1,6 +1,8 @@
 import { Hono } from "https://deno.land/x/hono@v3.4.1/mod.ts";
 import * as productsMen from '../static/data/products-shop-men.json' with { type: "json" };
 import * as productsWomen from '../static/data/products-shop-women.json' with { type: "json"};
+import * as all_resume_productos from "../static/data/data-deno-kv-resume.json" with { type: "json"}
+import * as all_products from '../static/data/data-deno-kv.json' with { type: "json"};
 import * as XLSX from 'https://deno.land/x/sheetjs@v0.18.3/xlsx.mjs'
 const files = new Hono().basePath("/v1/files");
 
@@ -24,10 +26,7 @@ files.post("/divide-files", async (c) => {
   return c.text("DIVICION COMPLETA")
 });
 
-files.get("/recreate", async (c) => {
-  await convertFilesToJson()
-  return c.text("gaaa")
-})
+
 
 files.post("/generate-csv", async (c) => {
   const products = productsMen.default.concat(productsWomen.default);
@@ -46,6 +45,34 @@ files.post("/generate-csv", async (c) => {
 
     for (const product of productsForFile) {
       csvContent += `${product.url},\r\n`;
+    }
+
+    const filePath = `${saveDirectory}${baseFileName}_${i + 1}.csv`;
+    await Deno.writeTextFile(filePath, csvContent);
+    
+  }
+
+  return c.text("CSV files generated successfully");
+});
+
+files.post("/generate-xlsx", async (c) => {
+  const products = all_resume_productos.default
+  const itemsPerFile = 2000;
+  const totalProducts = products.length;
+  const numberOfFiles = Math.ceil(totalProducts / itemsPerFile);
+  const saveDirectory = "./static/resumen-xlsx/";
+  const baseFileName = "links_chunk";
+
+  for (let i = 0; i < numberOfFiles; i++) {
+    const start = i * itemsPerFile;
+    const end = Math.min((i + 1) * itemsPerFile, totalProducts);
+    const productsForFile = products.slice(start, end);
+
+    let csvContent = "id,descripcion,filter\r\n";
+
+    for (const product of productsForFile) {
+      const descripcion = `"${product.descripcion.replace(/"/g, '""')}"`;
+      csvContent += `${product.id},${descripcion},${product.filter} \r\n`;
     }
 
     const filePath = `${saveDirectory}${baseFileName}_${i + 1}.csv`;
@@ -88,36 +115,17 @@ files.get("/convert-files", async (c) => {
   return c.text("dddd")
 })
 
+files.get("/resume-files", async (c) => {
 
+  const ubication = './static/data/data-deno-kv-resume.json'
+  const products = all_products.default;
+
+  const resumeProducts = products.map((p)=>({id:p.id,descripcion:p.descripcion,filter:p.filter}));
+
+  const productsString = JSON.stringify(resumeProducts, null, 2);
+  await Deno.writeTextFile(ubication, productsString);
+
+  return c.text("tarea completada")
+})
 
 export default files;
-
-export const convertFilesToJson = async () => {
-
-  const ubicacion = "./static/products"
-  for await (const file of Deno.readDir(ubicacion)) {
-    // ./static/products/chunck_product_false_1.json
-    const filePath = `${ubicacion}/${file.name}`;
-    // const buffer = await Deno.readTextFile(filePath);
-    // const products = JSON.parse(buffer);
-
-    // convertir files
-    const newFileName = file.name.replace('false', 'true');
-    console.log(newFileName);
-    // Deno.rename
-
-    // const productsString = JSON.stringify(products, null, 2);
-    // await Deno.writeTextFile(filePath, productsString);
-
-    // await Deno.remove(filePath);
-
-  }
-
-
-
-
-}
-
-function readCSV(f: Deno.FsFile) {
-  throw new Error("Function not implemented.");
-}

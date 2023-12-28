@@ -51,7 +51,7 @@ export const orderData = (products:Product[]) => {
 export const registrarProductos = async (active:boolean) => {
   if(!active) return "registrarProductos cancelated"
   const products = generateProducts();
-  await saveProducts(products);
+  await saveProducts(products,'es');
   
 }
 
