@@ -82,8 +82,4 @@ products.post("/generate", async (c) => {
   }
 })
 
-
-
-
-
 export default products;

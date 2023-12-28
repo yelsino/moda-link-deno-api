@@ -40,8 +40,8 @@ const app = new Hono();
    
 //     return {
 //       ...p,
-//       descripcion: resumen?.description ?? "",
-//       filter: resumen?.filter ?? ""
+//       descripcion: resumen?.description.trim() ?? "",
+//       filter: resumen?.filter.trim() ?? ""
 //     }
 //   });
 
